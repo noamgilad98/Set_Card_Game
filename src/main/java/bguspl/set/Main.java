@@ -16,7 +16,7 @@ public class Main {
      *
      * @param args - unused.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {//israel
 
         // create the game environment objects
         Config config = new Config("config.properties");
