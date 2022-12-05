@@ -1,10 +1,12 @@
 package bguspl.set.ex;
 
 import bguspl.set.Env;
+import bguspl.set.UserInterfaceImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.Collections; //import by noam to shuffle
 
 /**
  * This class manages the dealer's threads and data
@@ -54,7 +56,7 @@ public class Dealer implements Runnable {
             placeCardsOnTable();
             timerLoop();
             updateTimerDisplay(false);
-            removeAllCardsFromTable();
+            removeAllCardsFromTable();//return to deck if time over
         }
         announceWinners();
         System.out.printf("Info: Thread %s terminated.%n", Thread.currentThread().getName());
@@ -67,7 +69,7 @@ public class Dealer implements Runnable {
         while (!terminate && System.currentTimeMillis() < reshuffleTime) {
             sleepUntilWokenOrTimeout();
             updateTimerDisplay(false);
-            removeCardsFromTable();
+            removeCardsFromTable();//if set
             placeCardsOnTable();
         }
     }
@@ -93,13 +95,18 @@ public class Dealer implements Runnable {
      */
     private void removeCardsFromTable() {
         // TODO implement
+
     }
 
     /**
      * Check if any cards can be removed from the deck and placed on the table.
      */
-    private void placeCardsOnTable() {
+    private void placeCardsOnTable() {//noam
         // TODO implement
+        Collections.shuffle(deck);
+        List<Integer> emptySlots = table.getEmptySlots();
+        for (int i : emptySlots)
+            table.placeCard(deck.remove(0),i);
     }
 
     /**
