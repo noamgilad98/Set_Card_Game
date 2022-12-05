@@ -125,6 +125,7 @@ public class Player implements Runnable {
      */
     public void keyPressed(int slot) {//israel
         // TODO implement
+
         if(table.slotToCard[slot] != null){
             if(this.currentTokenUse() < 3) {
                 table.placeToken(id, slot);
@@ -145,6 +146,10 @@ public class Player implements Runnable {
             sum+=i;
         }
         return sum;
+
+
+
+
     }
 
 

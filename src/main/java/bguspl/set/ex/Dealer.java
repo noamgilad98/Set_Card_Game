@@ -3,6 +3,7 @@ package bguspl.set.ex;
 import bguspl.set.Env;
 import bguspl.set.UserInterfaceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -91,9 +92,9 @@ public class Dealer implements Runnable {
     }
 
     /**
-     * Checks if any cards should be removed from the table and returns them to the deck.
+     * Checks if any cards should be removed from the table.
      */
-    private void removeCardsFromTable() {
+    private void removeCardsFromTable() {//remove the set
         // TODO implement
 
     }
@@ -121,13 +122,17 @@ public class Dealer implements Runnable {
      */
     private void updateTimerDisplay(boolean reset) {
         // TODO implement
-    }
+    }//
 
     /**
      * Returns all the cards from the table to the deck.
      */
-    private void removeAllCardsFromTable() {
+    private void removeAllCardsFromTable() {//return to deck if time over
         // TODO implement
+        for (int i=0 ; i < table.slotToCard.length; i++) {
+            deck.add(table.slotToCard[i]);
+            table.removeCard(i);
+        }
     }
 
     /**
@@ -135,5 +140,23 @@ public class Dealer implements Runnable {
      */
     private void announceWinners() {
         // TODO implement
+        List<Player> winners = new ArrayList<Player>();
+        int highScor=0;
+        for (Player p : players){//find the players with highst scor
+            if(p.getScore() == highScor)
+                winners.add(p);
+            if(p.getScore() > highScor){
+                winners.clear();
+                winners.add(p);
+                highScor = p.getScore();
+            }
+        }
+        int[]winnersARR = new int[winners.size()];//convert the list to array
+        int i=0;
+        for (Player p : winners){
+           winnersARR[i] = p.id;
+           i++;
+       }
+        env.ui.announceWinner(winnersARR);
     }
 }
