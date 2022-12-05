@@ -122,7 +122,7 @@ public class Dealer implements Runnable {
      */
     private void updateTimerDisplay(boolean reset) {
         // TODO implement
-    }
+    }//
 
     /**
      * Returns all the cards from the table to the deck.
