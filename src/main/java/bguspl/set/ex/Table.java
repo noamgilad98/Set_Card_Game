@@ -115,8 +115,9 @@ public class Table {
      * @param player - the player the token belongs to.
      * @param slot   - the slot on which to place the token.
      */
-    public void placeToken(int player, int slot) {
+    public void placeToken(int player, int slot) {//israel
         // TODO implement
+        env.ui.placeToken(player,slot);
     }
 
     /**
@@ -125,8 +126,12 @@ public class Table {
      * @param slot   - the slot from which to remove the token.
      * @return       - true iff a token was successfully removed.
      */
-    public boolean removeToken(int player, int slot) {
+    public boolean removeToken(int player, int slot) {///////////////////////////////////////////////////////
         // TODO implement
+        if(true) {
+            env.ui.removeToken(player, slot);
+            return true;
+        }
         return false;
     }
 
@@ -141,6 +146,14 @@ public class Table {
                 emptySlots.add(i);
         return emptySlots;
     }
+    /**
+     *
+     * @return       true if there is already a token in this slot .
+
+    public boolean isTokenExsist(int slot) {/////////////////////////////////////////////////////
+
+        return true;
+    }*/
 }
 
 
