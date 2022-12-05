@@ -53,6 +53,11 @@ public class Player implements Runnable {
     private int score;
 
     /**
+     * The current amount of tokens of the player.
+     */
+    private int[] Tokens; //israel
+
+    /**
      * The class constructor.
      *
      * @param env    - the environment object.
@@ -66,6 +71,7 @@ public class Player implements Runnable {
         this.table = table;
         this.id = id;
         this.human = human;
+        this.Tokens = new int[12];
     }
 
     /**
@@ -79,6 +85,7 @@ public class Player implements Runnable {
 
         while (!terminate) {
             // TODO implement main player loop
+
         }
         if (!human) try { aiThread.join(); } catch (InterruptedException ignored) {}
         System.out.printf("Info: Thread %s terminated.%n", Thread.currentThread().getName());
@@ -106,8 +113,9 @@ public class Player implements Runnable {
     /**
      * Called when the game should be terminated due to an external event.
      */
-    public void terminate() {
+    public void terminate() {//israel
         // TODO implement
+        this.playerThread.interrupt();
     }
 
     /**
@@ -115,9 +123,30 @@ public class Player implements Runnable {
      *
      * @param slot - the slot corresponding to the key pressed.
      */
-    public void keyPressed(int slot) {
+    public void keyPressed(int slot) {//israel
         // TODO implement
+        if(table.slotToCard[slot] != null){
+            if(this.currentTokenUse() < 3) {
+                table.placeToken(id, slot);
+                this.Tokens[slot]=1;
+            }
+            else {
+                table.removeToken(id, slot);
+                this.Tokens[slot]=0;
+            }
+        }
     }
+    /**
+     * This return the number of thr players tokens on the table .
+     */
+    private int currentTokenUse() {
+        int sum =0;
+        for (int i : Tokens){
+            sum+=i;
+        }
+        return sum;
+    }
+
 
     /**
      * Award a point to a player and perform other related actions.
@@ -125,9 +154,9 @@ public class Player implements Runnable {
      * @post - the player's score is increased by 1.
      * @post - the player's score is updated in the ui.
      */
-    public void point() {
+    public void point() {//israel
         // TODO implement
-
+        score ++;
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, ++score);
     }
@@ -137,7 +166,14 @@ public class Player implements Runnable {
      */
     public void penalty() {
         // TODO implement
+        try {
+            this.playerThread.wait(1000);
+        }
+        catch (Exception ex){
+
+        }
     }
+
 
     public int getScore() {
         return score;
