@@ -115,6 +115,9 @@ public class Dealer implements Runnable {
      */
     private void sleepUntilWokenOrTimeout() {
         // TODO implement
+        env.ui.setCountdown(60000,false);
+
+
     }
 
     /**
@@ -122,6 +125,7 @@ public class Dealer implements Runnable {
      */
     private void updateTimerDisplay(boolean reset) {
         // TODO implement
+
     }//
 
     /**
@@ -151,9 +155,9 @@ public class Dealer implements Runnable {
                 highScor = p.getScore();
             }
         }
-        int[]winnersARR = new int[winners.size()];//convert the list to array
+        int[]winnersARR = new int[winners.size()];
         int i=0;
-        for (Player p : winners){
+        for (Player p : winners){//convert the list to array of winners id
            winnersARR[i] = p.id;
            i++;
        }
