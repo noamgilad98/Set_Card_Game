@@ -2,6 +2,7 @@ package bguspl.set.ex;
 
 import bguspl.set.Env;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -90,11 +91,10 @@ public class Table {
         try {
             Thread.sleep(env.config.tableDelayMillis);
         } catch (InterruptedException ignored) {}
-
         cardToSlot[card] = slot;
         slotToCard[slot] = card;
-
         // TODO implement
+        env.ui.placeCard(card,slot);
     }
 
     /**
@@ -107,6 +107,7 @@ public class Table {
         } catch (InterruptedException ignored) {}
 
         // TODO implement
+        env.ui.removeCard(slot);
     }
 
     /**
@@ -127,5 +128,17 @@ public class Table {
     public boolean removeToken(int player, int slot) {
         // TODO implement
         return false;
+    }
+
+    /**
+     *
+     * @return       - list of index of empty slots.
+     */
+    public List<Integer> getEmptySlots() {//noam new
+        List <Integer> emptySlots = new ArrayList<Integer>();
+        for (int i=0;i<slotToCard.length;i++)
+            if (slotToCard[i] == null)
+                emptySlots.add(i);
+        return emptySlots;
     }
 }
