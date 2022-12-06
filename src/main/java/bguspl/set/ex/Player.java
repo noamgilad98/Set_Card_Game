@@ -181,7 +181,7 @@ public class Player implements Runnable {
     /**
      * Penalize a player and perform other related actions.
      */
-    public void RemoveAllTokens() {
+    public void removeAllTokens() {
         for(int i : Tokens) {
             if(i==1){
                 i=0;

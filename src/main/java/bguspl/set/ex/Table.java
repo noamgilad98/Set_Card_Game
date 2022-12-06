@@ -33,7 +33,7 @@ public class Table {
     /**
      * list of players that need to be check
      */
-    private  List<Integer> playersWith3Tokens ;
+    private  List<Player> playersWith3Tokens ;
 
     /**
      * Constructor for testing.
@@ -169,7 +169,7 @@ public class Table {
      *
      * @return       - list of players with 3 tokens on the table.
      */
-    public List<Integer> getPlayersWith3Tokens () {//israel
+    public List<Player> getPlayersWith3Tokens () {//israel
         return playersWith3Tokens;
     }
 
