@@ -159,8 +159,10 @@ public class Player implements Runnable {
     public void point() {//israel
         // TODO implement
         score ++;
+        table.setScore(id,score++);
+        /*
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
-        env.ui.setScore(id, ++score);
+        env.ui.setScore(id, ++score);*/
     }
 
     /**
@@ -176,6 +178,17 @@ public class Player implements Runnable {
         }
     }
 
+    /**
+     * Penalize a player and perform other related actions.
+     */
+    public void RemoveAllTokens() {
+        for(int i : Tokens) {
+            if(i==1){
+                i=0;
+                table.removeToken(id,i);
+            }
+        }
+    }
 
     public int getScore() {
         return score;
