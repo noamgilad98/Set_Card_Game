@@ -196,11 +196,26 @@ public class Dealer implements Runnable {
      * check if the 3 card is leagel set
      * @return true if the 3 cards is leagel set
      */
-    private  boolean isLeagelSet(int [] cards){
-        int [][] allPlayerCardBinari = new int[3][4];//colum is featur and row is card
+    private  boolean isLeagelSet(List<Integer> cards){
+        int [] card1 = convertCardIntToBinari(cards.get(0));
+        int [] card2 = convertCardIntToBinari(cards.get(1));
+        int [] card3 = convertCardIntToBinari(cards.get(2));
+        int sum=0;
+        for (int i=0;i<4;i++)
+        {
+            if( (card1[i] == card2[i]) && (card1[i] == card3[i]) )//if feature is  same for all 3 cards
+                sum++;
+            else
+                if(card1[i] != card2[i] && card1[i] != card3[i] && card2[i] != card3[i])//if feature is Not same for every 2 cards
+                    sum--;
+        }
+        if ( (sum == 3) || (sum == -4) )//3 if 3 feaure is the same
+            return true;
+        else
+            return false;
 
-    return true;
     }
+
     private int[] convertCardIntToBinari(int card){
         int[] cardBinari = new int[4];
         int i=0;
