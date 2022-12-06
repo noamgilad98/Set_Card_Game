@@ -173,6 +173,7 @@ public class Table {
         return playersWith3Tokens;
     }
 
+    public void setPlayersWith3Tokens (Player p ){playersWith3Tokens.add(p);}
 
     public void setScore(int player,int score){
         env.ui.setScore(player, ++score);

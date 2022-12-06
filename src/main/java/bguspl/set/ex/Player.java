@@ -4,6 +4,8 @@ package bguspl.set.ex;
 
 import bguspl.set.Env;
 
+import java.util.List;
+
 /**
  * This class manages the players' threads and data
  *
@@ -55,7 +57,7 @@ public class Player implements Runnable {
     /**
      * The current amount of tokens of the player.
      */
-    private int[] Tokens; //israel
+    private List<Integer> tokensOnCards; //israel
 
     /**
      * The class constructor.
@@ -71,7 +73,6 @@ public class Player implements Runnable {
         this.table = table;
         this.id = id;
         this.human = human;
-        this.Tokens = new int[12];
     }
 
     /**
@@ -125,30 +126,22 @@ public class Player implements Runnable {
      */
     public void keyPressed(int slot) {//israel
         // TODO implement
-
         if(table.slotToCard[slot] != null){
-            if(this.currentTokenUse() < 3) {
+            if(tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)){
                 table.placeToken(id, slot);
-                this.Tokens[slot]=1;
+                tokensOnCards.add(slot);
+                table.setPlayersWith3Tokens(this);
             }
-            else {
+            else if (tokensOnCards.size() > 0 && !tokensOnCards.contains(slot)){
+                table.placeToken(id, slot);
+                tokensOnCards.add(slot);
+            }
+            else if (tokensOnCards.size() == 3 && tokensOnCards.contains(slot)){
                 table.removeToken(id, slot);
-                this.Tokens[slot]=0;
+                tokensOnCards.remove(slot);
             }
         }
     }
-    /**
-     * This return the number of thr players tokens on the table .
-     */
-    private int currentTokenUse() {
-        int sum =0;
-        for (int i : Tokens){
-            sum+=i;
-        }
-        return sum;
-
-    }
-
 
     /**
      * Award a point to a player and perform other related actions.
@@ -182,8 +175,8 @@ public class Player implements Runnable {
      * Penalize a player and perform other related actions.
      */
     public void removeAllTokens() {
-        for(int i : Tokens) {
-            if(i==1){
+        for(int i : this.tokensOnCards) {
+            if(i>0){
                 i=0;
                 table.removeToken(id,i);
             }
@@ -193,19 +186,8 @@ public class Player implements Runnable {
     public int getScore() {
         return score;
     }
-    public int[] getTokens() {
-        return Tokens;
-    }
 
-    public int[] getPlayerCards (){
-        int [] a = new int[3];
-        int j=0;
-        for (int i : Tokens){
-            if(i == 1){
-                a[j]=i;
-                j++;
-            }
-        }
-        return a;
+    public List<Integer> getPlayerCards (){
+        return tokensOnCards;
     }
 }
