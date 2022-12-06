@@ -183,4 +183,16 @@ public class Player implements Runnable {
     public int[] getTokens() {
         return Tokens;
     }
+
+    public int[] getPlayerCards (){
+        int [] a = new int[3];
+        int j=0;
+        for (int i : Tokens){
+            if(i == 1){
+                a[j]=i;
+                j++;
+            }
+        }
+        return a;
+    }
 }
