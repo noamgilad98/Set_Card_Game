@@ -58,6 +58,7 @@ public class Dealer implements Runnable {
             reshuffleTime = System.currentTimeMillis()+6000;//noam
             timerLoop();
             updateTimerDisplay(false);
+            removeAllPlayersTokens();
             removeAllCardsFromTable();//return to deck if time over
         }
         announceWinners();
@@ -167,4 +168,53 @@ public class Dealer implements Runnable {
        }
         env.ui.announceWinner(winnersARR);
     }
+
+    /**
+     * remove all the players tokens from table
+     */
+    private void removeAllPlayersTokens() {
+        for (Player p : players){
+            p.removeAllTokens();
+        }
+    }
+
+    /**
+     * check if there any player with leagl set
+     * @return the first player who put 3 tokens on leagel set
+     */
+    private Player getPlayerWithLeagelSet(){
+        List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
+        for (Player p : playersWith3Tokens){
+            if(isLeagelSet(p.getPlayerCards)){
+                return p;
+            }
+        }
+        return null;//if no player with leagel set
+    }
+
+    /**
+     * check if the 3 card is leagel set
+     * @return true if the 3 cards is leagel set
+     */
+    private  boolean isLeagelSet(int [] cards){
+        int [][] allPlayerCardBinari = new int[3][4];//colum is featur and row is card
+
+    return true;
+    }
+    private int[] convertCardIntToBinari(int card){
+        int[] cardBinari = new int[4];
+        int i=0;
+        for(i=0; i<4; i++)//init the array with 0
+            cardBinari[i]=0;
+
+        for (i=3;i>=0;i--){
+            for (int j=2;j>=0;j--)
+                if( card -  (j * Math.pow(3,i) ) >= 0){
+                    cardBinari[i]=j;
+                    card -= j * Math.pow(3,i);
+                }
+        }
+        return cardBinari;
+    }
+
 }
