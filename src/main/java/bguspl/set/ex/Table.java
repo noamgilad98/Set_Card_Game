@@ -107,7 +107,12 @@ public class Table {
         } catch (InterruptedException ignored) {}
 
         // TODO implement
-        env.ui.removeCard(slot);
+        if( slotToCard[slot] != null) {
+            cardToSlot[slotToCard[slot]] = null;
+            slotToCard[slot] = null;
+            env.ui.removeCard(slot);
+        }
+
     }
 
     /**

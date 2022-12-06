@@ -55,6 +55,7 @@ public class Dealer implements Runnable {
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
+            reshuffleTime = System.currentTimeMillis()+6000;//noam
             timerLoop();
             updateTimerDisplay(false);
             removeAllCardsFromTable();//return to deck if time over
@@ -80,6 +81,7 @@ public class Dealer implements Runnable {
      */
     public void terminate() {
         // TODO implement
+        Thread.currentThread().interrupt();
     }
 
     /**
@@ -115,7 +117,7 @@ public class Dealer implements Runnable {
      */
     private void sleepUntilWokenOrTimeout() {
         // TODO implement
-        env.ui.setCountdown(60000,false);
+
 
 
     }
@@ -125,6 +127,8 @@ public class Dealer implements Runnable {
      */
     private void updateTimerDisplay(boolean reset) {
         // TODO implement
+        env.ui.setElapsed(reshuffleTime-System.currentTimeMillis());
+
 
     }//
 
