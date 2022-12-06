@@ -185,7 +185,7 @@ public class Dealer implements Runnable {
     private Player getPlayerWithLeagelSet(){
         List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
         for (Player p : playersWith3Tokens){
-            if(isLeagelSet(p.getPlayerCards)){
+            if(isLeagelSet(p.getPlayerCards())){
                 return p;
             }
         }
