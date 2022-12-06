@@ -147,9 +147,6 @@ public class Player implements Runnable {
         }
         return sum;
 
-
-
-
     }
 
 
@@ -182,5 +179,8 @@ public class Player implements Runnable {
 
     public int getScore() {
         return score;
+    }
+    public int[] getTokens() {
+        return Tokens;
     }
 }
