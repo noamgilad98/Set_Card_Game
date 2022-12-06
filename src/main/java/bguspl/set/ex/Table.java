@@ -31,6 +31,11 @@ public class Table {
     protected final Integer[] cardToSlot; // slot per card (if any)
 
     /**
+     * list of players that need to be check
+     */
+    private  List<Integer> playersWith3Tokens ;
+
+    /**
      * Constructor for testing.
      *
      * @param env        - the game environment objects.
@@ -160,9 +165,19 @@ public class Table {
         return true;
     }*/
 
+    /**
+     *
+     * @return       - list of players with 3 tokens on the table.
+     */
+    public List<Integer> getPlayersWith3Tokens () {//israel
+        return playersWith3Tokens;
+    }
+
+
     public void setScore(int player,int score){
         env.ui.setScore(player, ++score);
     }
+
 }
 
 
