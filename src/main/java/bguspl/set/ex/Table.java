@@ -133,11 +133,11 @@ public class Table {
      */
     public boolean removeToken(int player, int slot) {///////////////////////////////////////////////////////
         // TODO implement
-        if(true) {
+        try {
             env.ui.removeToken(player, slot);
             return true;
         }
-        return false;
+        catch (Exception ex){return false;}
     }
 
     /**
@@ -159,6 +159,10 @@ public class Table {
 
         return true;
     }*/
+
+    public void setScore(int player,int score){
+        env.ui.setScore(player, ++score);
+    }
 }
 
 
