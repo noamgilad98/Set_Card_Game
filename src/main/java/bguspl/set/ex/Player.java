@@ -4,6 +4,7 @@ package bguspl.set.ex;
 
 import bguspl.set.Env;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,6 +74,8 @@ public class Player implements Runnable {
         this.table = table;
         this.id = id;
         this.human = human;
+        this.tokensOnCards = new ArrayList<Integer>();
+
     }
 
     /**
@@ -132,7 +135,7 @@ public class Player implements Runnable {
                 tokensOnCards.add(slot);
                 table.setPlayersWith3Tokens(this);
             }
-            else if (tokensOnCards.size() > 0 && !tokensOnCards.contains(slot)){
+            else if (!tokensOnCards.contains(slot)){
                 table.placeToken(id, slot);
                 tokensOnCards.add(slot);
             }
