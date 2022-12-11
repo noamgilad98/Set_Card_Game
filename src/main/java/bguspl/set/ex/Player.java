@@ -175,6 +175,7 @@ public class Player implements Runnable {
         // TODO implement
         try {
             this.playerThread.wait(1000);
+            env.ui.setFreeze(this.id,1000);
         }
         catch (Exception ex){
 
