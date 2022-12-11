@@ -2,6 +2,8 @@ package bguspl.set.ex;
 
 import bguspl.set.Env;
 import bguspl.set.UserInterfaceImpl;
+import bguspl.set.UtilImpl;
+//import jdk.jshell.execution.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +57,7 @@ public class Dealer implements Runnable {
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
-            reshuffleTime = System.currentTimeMillis()+60000 ;//noam
+            reshuffleTime = System.currentTimeMillis() + 20000;//noam
             timerLoop();
             updateTimerDisplay(false);
             removeAllPlayersTokens();
@@ -99,147 +101,162 @@ public class Dealer implements Runnable {
      */
     private void removeCardsFromTable() {//remove the set
         // TODO implement
-        if(getPlayerWithLeagelSet() != null){
+        if (getPlayerWithLeagelSet() != null) {
             Player p = getPlayerWithLeagelSet();
             p.getScore();
             List<Integer> setCard = p.getPlayerCards();
             for(int i : setCard)
-             table.removeCard(table.cardToSlot[i]);
+                table.removeCard(table.cardToSlot[i]);
             placeCardsOnTable();;
         }
-
-    }
-
-    /**
-     * Check if any cards can be removed from the deck and placed on the table.
-     */
-    private void placeCardsOnTable() {//noam
-        // TODO implement
-        Collections.shuffle(deck);
-        List<Integer> emptySlots = table.getEmptySlots();
-        for (int i : emptySlots)
-            table.placeCard(deck.remove(0),i);
-    }
-
-    /**
-     * Sleep for a fixed amount of time or until the thread is awakened for some purpose.
-     */
-    private void sleepUntilWokenOrTimeout() {
-        // TODO implement
-
-
-
-    }
-
-    /**
-     * Reset and/or update the countdown and the countdown display.
-     */
-    private void updateTimerDisplay(boolean reset) {
-        // TODO implement
-        env.ui.setElapsed(reshuffleTime-System.currentTimeMillis());
-
-
-    }//
-
-    /**
-     * Returns all the cards from the table to the deck.
-     */
-    private void removeAllCardsFromTable() {//return to deck if time over
-        // TODO implement
-        for (int i=0 ; i < table.slotToCard.length; i++) {
-            deck.add(table.slotToCard[i]);
-            table.removeCard(i);
-        }
-    }
-
-    /**
-     * Check who is/are the winner/s and displays them.
-     */
-    private void announceWinners() {
-        // TODO implement
-        List<Player> winners = new ArrayList<Player>();
-        int highScor=0;
-        for (Player p : players){//find the players with highst scor
-            if(p.getScore() == highScor)
-                winners.add(p);
-            if(p.getScore() > highScor){
-                winners.clear();
-                winners.add(p);
-                highScor = p.getScore();
-            }
-        }
-        int[]winnersARR = new int[winners.size()];
-        int i=0;
-        for (Player p : winners){//convert the list to array of winners id
-           winnersARR[i] = p.id;
-           i++;
-       }
-        env.ui.announceWinner(winnersARR);
-    }
-
-    /**
-     * remove all the players tokens from table
-     */
-    private void removeAllPlayersTokens() {
-        for (Player p : players){
-            p.removeAllTokens();
-        }
-    }
-
-    /**
-     * check if there any player with leagl set
-     * @return the first player who put 3 tokens on leagel set
-     */
-    private Player getPlayerWithLeagelSet(){
-        List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
-        for (Player p : playersWith3Tokens){
-            if(isLeagelSet(p.getPlayerCards())){
-                return p;
-            }
-        }
-        return null;//if no player with leagel set
-    }
-
-    /**
-     * check if the 3 card is leagel set
-     * @return true if the 3 cards is leagel set
-     */
-    private  boolean isLeagelSet(List<Integer> cards){
-
-
-        int [] card1 = convertCardIntToBinari(cards.get(0));
-        int [] card2 = convertCardIntToBinari(cards.get(1));
-        int [] card3 = convertCardIntToBinari(cards.get(2));
-        int sum=0;
-        for (int i=0;i<4;i++)
-        {
-            if( (card1[i] == card2[i]) && (card1[i] == card3[i]) )//if feature is  same for all 3 cards
-                sum++;
-            else
-                if(card1[i] != card2[i] && card1[i] != card3[i] && card2[i] != card3[i])//if feature is Not same for every 2 cards
-                    sum--;
-        }
-        if ( (sum == 3) || (sum == -4) )//3 if 3 feaure is the same
-            return true;
         else
-            return false;
+        {
 
-    }
-
-    private int[] convertCardIntToBinari(int card){
-        int[] cardBinari = new int[4];
-        int i=0;
-        for(i=0; i<4; i++)//init the array with 0
-            cardBinari[i]=0;
-
-        for (i=3;i>=0;i--){
-            for (int j=2;j>=0;j--)
-                if( card -  (j * Math.pow(3,i) ) >= 0){
-                    cardBinari[i]=j;
-                    card -= j * Math.pow(3,i);
-                }
         }
-        return cardBinari;
+
     }
 
-}
+
+        /**
+         * Check if any cards can be removed from the deck and placed on the table.
+         */
+        private void placeCardsOnTable() {//noam
+            // TODO implement
+            Collections.shuffle(deck);
+            List<Integer> emptySlots = table.getEmptySlots();
+            for (int i : emptySlots)
+                table.placeCard(deck.remove(0), i);
+        }
+
+        /**
+         * Sleep for a fixed amount of time or until the thread is awakened for some purpose.
+         */
+        private void sleepUntilWokenOrTimeout() {
+            // TODO implement
+
+
+        }
+
+        /**
+         * Reset and/or update the countdown and the countdown display.
+         */
+        private void updateTimerDisplay(boolean reset) {
+            // TODO implement
+            env.ui.setElapsed(reshuffleTime - System.currentTimeMillis());
+
+
+        }//
+
+        /**
+         * Returns all the cards from the table to the deck.
+         */
+        private void removeAllCardsFromTable() {//return to deck if time over
+            // TODO implement
+            for (int i = 0; i < table.slotToCard.length; i++) {
+                deck.add(table.slotToCard[i]);
+                table.removeCard(i);
+            }
+        }
+
+        /**
+         * Check who is/are the winner/s and displays them.
+         */
+        private void announceWinners() {
+            // TODO implement
+            List<Player> winners = new ArrayList<Player>();
+            int highScor = 0;
+            for (Player p : players) {//find the players with highst scor
+                if (p.getScore() == highScor)
+                    winners.add(p);
+                if (p.getScore() > highScor) {
+                    winners.clear();
+                    winners.add(p);
+                    highScor = p.getScore();
+                }
+            }
+            int[] winnersARR = new int[winners.size()];
+            int i = 0;
+            for (Player p : winners) {//convert the list to array of winners id
+                winnersARR[i] = p.id;
+                i++;
+            }
+            env.ui.announceWinner(winnersARR);
+        }
+
+        /**
+         * remove all the players tokens from table
+         */
+        private void removeAllPlayersTokens() {
+//        for (Player p : players){
+//            p.removeAllTokens();
+//        }
+        }
+
+        /**
+         * check if there any player with leagl set
+         * @return the first player who put 3 tokens on leagel set
+         */
+        private Player getPlayerWithLeagelSet(){
+            List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
+            if(playersWith3Tokens!=null) {
+
+                for (Player p : playersWith3Tokens) {
+                    List<Integer> list = p.getPlayerCards();
+                    int[] arr = new int[list.size()];
+                    for (int i = 0; i < list.size(); i++)
+                        arr[i] = list.get(i);
+
+                    if (env.util.testSet(arr))
+                        return p;
+                    else
+                        p.penalty();
+
+
+                }
+            }
+            return null;//if no player with leagel set
+        }
+
+        /**
+         * check if the 3 card is leagel set
+         * @return true if the 3 cards is leagel set
+         */
+//    private  boolean isLeagelSet(List<Integer> cards){
+//
+//
+//        int [] card1 = convertCardIntToBinari(cards.get(0));
+//        int [] card2 = convertCardIntToBinari(cards.get(1));
+//        int [] card3 = convertCardIntToBinari(cards.get(2));
+//        int sum=0;
+//        for (int i=0;i<4;i++)
+//        {
+//            if( (card1[i] == card2[i]) && (card1[i] == card3[i]) )//if feature is  same for all 3 cards
+//                sum++;
+//            else
+//                if(card1[i] != card2[i] && card1[i] != card3[i] && card2[i] != card3[i])//if feature is Not same for every 2 cards
+//                    sum--;
+//        }
+//        if ( (sum == 3) || (sum == -4) )//3 if 3 feaure is the same
+//            return true;
+//        else
+//            return false;
+//
+//    }
+
+//    private int[] convertCardIntToBinari(int card){
+//        int[] cardBinari = new int[4];
+//        int i=0;
+//        for(i=0; i<4; i++)//init the array with 0
+//            cardBinari[i]=0;
+//
+//        for (i=3;i>=0;i--){
+//            for (int j=2;j>=0;j--)
+//                if( card -  (j * Math.pow(3,i) ) >= 0){
+//                    cardBinari[i]=j;
+//                    card -= j * Math.pow(3,i);
+//                }
+//        }
+//        return cardBinari;
+//    }
+//
+    }
