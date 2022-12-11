@@ -47,6 +47,7 @@ public class Table {
         this.env = env;
         this.slotToCard = slotToCard;
         this.cardToSlot = cardToSlot;
+        this.playersWith3Tokens = new ArrayList<Player>();
     }
 
     /**

@@ -101,9 +101,10 @@ public class Dealer implements Runnable {
      */
     private void removeCardsFromTable() {//remove the set
         // TODO implement
+
         if (getPlayerWithLeagelSet() != null) {
             Player p = getPlayerWithLeagelSet();
-            p.getScore();
+            p.point();
             List<Integer> setCard = p.getPlayerCards();
             for(int i : setCard)
                 table.removeCard(table.cardToSlot[i]);
@@ -198,13 +199,13 @@ public class Dealer implements Runnable {
          */
         private Player getPlayerWithLeagelSet(){
             List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
-            if(playersWith3Tokens!=null) {
+            if(playersWith3Tokens.size() > 0) {
 
                 for (Player p : playersWith3Tokens) {
                     List<Integer> list = p.getPlayerCards();
                     int[] arr = new int[list.size()];
                     for (int i = 0; i < list.size(); i++)
-                        arr[i] = list.get(i);
+                        arr[i] = table.slotToCard[list.get(i)];
 
                     if (env.util.testSet(arr))
                         return p;
