@@ -133,15 +133,16 @@ public class Player implements Runnable {
             if(tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)){
                 table.placeToken(id, slot);
                 tokensOnCards.add(slot);
-                table.setPlayersWith3Tokens(this);
+                table.setPlayersWith3Tokens(this,true);
             }
-            else if (!tokensOnCards.contains(slot)){
+            else if (!tokensOnCards.contains(slot) && tokensOnCards.size()<2){
                 table.placeToken(id, slot);
                 tokensOnCards.add(slot);
             }
-            else if (tokensOnCards.size() == 3 && tokensOnCards.contains(slot)){
+            else if (tokensOnCards.contains(slot)){
                 table.removeToken(id, slot);
                 tokensOnCards.remove(slot);
+                table.setPlayersWith3Tokens(this,false);
             }
         }
     }
@@ -159,6 +160,12 @@ public class Player implements Runnable {
         /*
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, ++score);*/
+        try {
+            this.playerThread.wait(1000);
+        }
+        catch (Exception ex){
+
+        }
     }
 
     /**
