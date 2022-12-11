@@ -55,7 +55,7 @@ public class Dealer implements Runnable {
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
-            reshuffleTime = System.currentTimeMillis()+6000;//noam
+            reshuffleTime = System.currentTimeMillis()+60000 ;//noam
             timerLoop();
             updateTimerDisplay(false);
             removeAllPlayersTokens();
@@ -99,6 +99,14 @@ public class Dealer implements Runnable {
      */
     private void removeCardsFromTable() {//remove the set
         // TODO implement
+        if(getPlayerWithLeagelSet() != null){
+            Player p = getPlayerWithLeagelSet();
+            p.getScore();
+            List<Integer> setCard = p.getPlayerCards();
+            for(int i : setCard)
+             table.removeCard(table.cardToSlot[i]);
+            placeCardsOnTable();;
+        }
 
     }
 
@@ -197,6 +205,8 @@ public class Dealer implements Runnable {
      * @return true if the 3 cards is leagel set
      */
     private  boolean isLeagelSet(List<Integer> cards){
+
+
         int [] card1 = convertCardIntToBinari(cards.get(0));
         int [] card2 = convertCardIntToBinari(cards.get(1));
         int [] card3 = convertCardIntToBinari(cards.get(2));
