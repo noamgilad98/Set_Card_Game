@@ -192,9 +192,9 @@ public class Player implements Runnable {
     public void removeTokens(int[] arr) {
         for (int i = 0 ; i < arr.length ; i++)
         {
-            if (tokensOnCards.contains(arr[i])){
-                tokensOnCards.remove(arr[i]);
-                table.removeTokenByCard(this.id,arr[i]);
+            if (tokensOnCards.contains(table.getCardToSlot(arr[i]))){
+                tokensOnCards.remove(table.getCardToSlot(arr[i]));
+                table.removeTokenByCard(this.id,table.getCardToSlot(arr[i]));
             }
         }
     }

@@ -202,6 +202,10 @@ public class Table {
         return cards;
     }
 
+    public int getCardToSlot(int card){
+        return cardToSlot[card];
+    }
+
     public void setScore(int player,int score){
         env.ui.setScore(player, ++score);
     }
