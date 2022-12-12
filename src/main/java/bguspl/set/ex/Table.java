@@ -181,6 +181,12 @@ public class Table {
             playersWith3Tokens.remove(p);
 
     }
+    public List<Integer> getSlotsAsList(){
+        List<Integer> cards = new ArrayList<Integer>();
+        for (int i=0; i<this.slotToCard.length; i++)
+            cards.add(slotToCard[i]);
+        return cards;
+    }
 
     public void setScore(int player,int score){
         env.ui.setScore(player, ++score);

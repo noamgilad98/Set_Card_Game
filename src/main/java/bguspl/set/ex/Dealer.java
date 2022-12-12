@@ -57,7 +57,7 @@ public class Dealer implements Runnable {
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
-            reshuffleTime = System.currentTimeMillis() + 20000;//noam
+            reshuffleTime = System.currentTimeMillis() + 60000;//noam
             timerLoop();
             updateTimerDisplay(false);
             removeAllPlayersTokens();
@@ -84,6 +84,7 @@ public class Dealer implements Runnable {
      */
     public void terminate() {
         // TODO implement
+
         Thread.currentThread().interrupt();
     }
 
@@ -102,19 +103,25 @@ public class Dealer implements Runnable {
     private void removeCardsFromTable() {//remove the set
         // TODO implement
 
-        if (getPlayerWithLeagelSet() != null) {
-            Player p = getPlayerWithLeagelSet();
-            p.point();
-            List<Integer> setCard = p.getPlayerCards();
-            for(int i : setCard)
-                table.removeCard(table.cardToSlot[i]);
-            placeCardsOnTable();;
-        }
-        else
-        {
+        List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
+        if(playersWith3Tokens.size() > 0) {
 
-        }
+            for (Player p : playersWith3Tokens) {
+                List<Integer> list = p.getPlayerCards();
+                int[] arr = new int[list.size()];
+                for (int i = 0; i < list.size(); i++)
+                    arr[i] = table.slotToCard[list.get(i)];
 
+                if (env.util.testSet(arr)){
+                    p.point();
+                    for(int i : arr)
+                        table.removeCard(table.cardToSlot[i]);
+                    placeCardsOnTable();;
+                }
+                else
+                    p.penalty();
+            }
+        }
     }
 
 
@@ -127,6 +134,11 @@ public class Dealer implements Runnable {
             List<Integer> emptySlots = table.getEmptySlots();
             for (int i : emptySlots)
                 table.placeCard(deck.remove(0), i);
+            if(env.util.findSets(table.getSlotsAsList(),1).size() == 0){
+                removeAllCardsFromTable();
+                placeCardsOnTable();
+            }
+
         }
 
         /**
@@ -157,6 +169,9 @@ public class Dealer implements Runnable {
                 deck.add(table.slotToCard[i]);
                 table.removeCard(i);
             }
+            if(env.util.findSets(deck,1).size()>0)
+                this.terminate();
+
         }
 
         /**
@@ -193,30 +208,7 @@ public class Dealer implements Runnable {
 //        }
         }
 
-        /**
-         * check if there any player with leagl set
-         * @return the first player who put 3 tokens on leagel set
-         */
-        private Player getPlayerWithLeagelSet(){
-            List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
-            if(playersWith3Tokens.size() > 0) {
 
-                for (Player p : playersWith3Tokens) {
-                    List<Integer> list = p.getPlayerCards();
-                    int[] arr = new int[list.size()];
-                    for (int i = 0; i < list.size(); i++)
-                        arr[i] = table.slotToCard[list.get(i)];
-
-                    if (env.util.testSet(arr))
-                        return p;
-                    else
-                        p.penalty();
-
-
-                }
-            }
-            return null;//if no player with leagel set
-        }
 
         /**
          * check if the 3 card is leagel set
