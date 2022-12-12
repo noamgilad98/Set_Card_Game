@@ -176,6 +176,10 @@ public class Player implements Runnable {
         try {
             this.playerThread.wait(1000);
             env.ui.setFreeze(this.id,1000);
+            for (int i : tokensOnCards){
+                tokensOnCards.remove(i);
+                table.removeToken(this.id,i);
+            }
         }
         catch (Exception ex){
 
@@ -185,11 +189,12 @@ public class Player implements Runnable {
     /**
      * Penalize a player and perform other related actions.
      */
-    public void removeAllTokens() {
-        for(int i : this.tokensOnCards) {
-            if(i>0){
-                i=0;
-                table.removeToken(id,i);
+    public void removeTokens(int[] arr) {
+        for (int i = 0 ; i < arr.length ; i++)
+        {
+            if (tokensOnCards.contains(arr[i])){
+                tokensOnCards.remove(arr[i]);
+                table.removeTokenByCard(this.id,arr[i]);
             }
         }
     }

@@ -147,6 +147,20 @@ public class Table {
     }
 
     /**
+     * Removes a token from a card.
+     * @param card - the card the token belongs to.
+     * @return       - true iff a token was successfully removed.
+     */
+    public boolean removeTokenByCard(int player ,int card) {
+        // TODO implement
+        try {
+            env.ui.removeToken(player, cardToSlot[card]);
+            return true;
+        }
+        catch (Exception ex){return false;}
+    }
+
+    /**
      *
      * @return       - list of index of empty slots.
      */
