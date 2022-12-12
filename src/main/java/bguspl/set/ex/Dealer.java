@@ -102,10 +102,18 @@ public class Dealer implements Runnable {
      */
     private void removeCardsFromTable() {//remove the set
         // TODO implement
+        boolean ans = removeCardsFromTableBool();
 
+    }
+    /**
+     * Checks if any cards should be removed from the table.
+     */
+
+    private boolean removeCardsFromTableBool() {//remove the set
+        // TODO implement
         List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
         if(playersWith3Tokens.size() > 0) {
-
+//
             for (Player p : playersWith3Tokens) {
                 List<Integer> list = p.getPlayerCards();
                 int[] arr = new int[list.size()];
@@ -114,14 +122,18 @@ public class Dealer implements Runnable {
 
                 if (env.util.testSet(arr)){
                     p.point();
+                    for (Player p : players)
+                        p.removeTokens(arr);
                     for(int i : arr)
                         table.removeCard(table.cardToSlot[i]);
-                    placeCardsOnTable();;
+                    placeCardsOnTable();
+                    return true;
                 }
                 else
                     p.penalty();
             }
         }
+        return false;
     }
 
 
