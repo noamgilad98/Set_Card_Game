@@ -59,6 +59,9 @@ private boolean isNewSet;
      */
     @Override
     public void run() {
+//        for (Player p : players) {
+//            p.run();
+//        }
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
@@ -139,7 +142,11 @@ private boolean isNewSet;
                     return true;
                 }
                 else
+                {
+
                     p.penalty();
+                }
+
             }
         }
         return false;
@@ -242,6 +249,10 @@ private boolean isNewSet;
                 i++;
             }
             env.ui.announceWinner(winnersARR);
+        }
+
+        public void penalty(int playerID){
+
         }
 
 
