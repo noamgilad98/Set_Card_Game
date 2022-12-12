@@ -42,11 +42,16 @@ public class Dealer implements Runnable {
      */
     private long reshuffleTime = Long.MAX_VALUE;
 
+
+private boolean isNewSet;
     public Dealer(Env env, Table table, Player[] players) {
         this.env = env;
         this.table = table;
         this.players = players;
         deck = IntStream.range(0, env.config.deckSize).boxed().collect(Collectors.toList());
+
+        this.isNewSet = true;
+
     }
 
     /**
@@ -60,6 +65,7 @@ public class Dealer implements Runnable {
             reshuffleTime = System.currentTimeMillis() + 60000;//noam
             timerLoop();
             updateTimerDisplay(false);
+            isNewSet = true;
             removeAllPlayersTokens();
             removeAllCardsFromTable();//return to deck if time over
         }
@@ -114,19 +120,22 @@ public class Dealer implements Runnable {
         List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
         if(playersWith3Tokens.size() > 0) {
 //
-            for (Player p : playersWith3Tokens) {
+            for (int j=0;j<playersWith3Tokens.size();j++) {
+                Player p = playersWith3Tokens.get(j);
                 List<Integer> list = p.getPlayerCards();
                 int[] arr = new int[list.size()];
                 for (int i = 0; i < list.size(); i++)
                     arr[i] = table.slotToCard[list.get(i)];
 
-                if (env.util.testSet(arr)){
+                if (env.util.testSet(arr) && arr.length==3){//set
                     p.point();
-                    for (Player p : players)
-                        p.removeTokens(arr);
+                    for (Player p1 : players)
+                        p1.removeTokens(arr);
                     for(int i : arr)
                         table.removeCard(table.cardToSlot[i]);
+                    isNewSet = true;
                     placeCardsOnTable();
+                    reshuffleTime = System.currentTimeMillis() + 60000;//noam
                     return true;
                 }
                 else
@@ -142,14 +151,34 @@ public class Dealer implements Runnable {
          */
         private void placeCardsOnTable() {//noam
             // TODO implement
-            Collections.shuffle(deck);
+            //Collections.shuffle(deck);
             List<Integer> emptySlots = table.getEmptySlots();
             for (int i : emptySlots)
-                table.placeCard(deck.remove(0), i);
-            if(env.util.findSets(table.getSlotsAsList(),1).size() == 0){
+                if(deck.size()>0)
+                    table.placeCard(deck.remove(0), i);
+
+            //int [] arr1 = env.util.findSets(table.getSlotsAsList(),);
+            if(deck.size()>0)
+            if(env.util.findSets(table.getSlotsAsList(),1).size() == 0 ){
                 removeAllCardsFromTable();
                 placeCardsOnTable();
             }
+            else
+            {
+                if(isNewSet) {
+                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[0]]);
+                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[1]]);
+                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[2]]);
+                    isNewSet = false;
+                }
+            }
+
+
+
+//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(0));
+//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(1));
+//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(2));
+
 
         }
 
@@ -183,6 +212,10 @@ public class Dealer implements Runnable {
             }
             if(env.util.findSets(deck,1).size()>0)
                 this.terminate();
+            for (Player p :players)
+                p.removeAllTokens();
+            if(env.util.findSets(deck,1).size()==0)
+                announceWinners();
 
         }
 
@@ -211,57 +244,10 @@ public class Dealer implements Runnable {
             env.ui.announceWinner(winnersARR);
         }
 
-        /**
-         * remove all the players tokens from table
-         */
+
         private void removeAllPlayersTokens() {
-//        for (Player p : players){
-//            p.removeAllTokens(); mk
-//        }
         }
 
 
 
-        /**
-         * check if the 3 card is leagel set
-         * @return true if the 3 cards is leagel set
-         */
-//    private  boolean isLeagelSet(List<Integer> cards){
-//
-//
-//        int [] card1 = convertCardIntToBinari(cards.get(0));
-//        int [] card2 = convertCardIntToBinari(cards.get(1));
-//        int [] card3 = convertCardIntToBinari(cards.get(2));
-//        int sum=0;
-//        for (int i=0;i<4;i++)
-//        {
-//            if( (card1[i] == card2[i]) && (card1[i] == card3[i]) )//if feature is  same for all 3 cards
-//                sum++;
-//            else
-//                if(card1[i] != card2[i] && card1[i] != card3[i] && card2[i] != card3[i])//if feature is Not same for every 2 cards
-//                    sum--;
-//        }
-//        if ( (sum == 3) || (sum == -4) )//3 if 3 feaure is the same
-//            return true;
-//        else
-//            return false;
-//
-//    }
-
-//    private int[] convertCardIntToBinari(int card){
-//        int[] cardBinari = new int[4];
-//        int i=0;
-//        for(i=0; i<4; i++)//init the array with 0
-//            cardBinari[i]=0;
-//
-//        for (i=3;i>=0;i--){
-//            for (int j=2;j>=0;j--)
-//                if( card -  (j * Math.pow(3,i) ) >= 0){
-//                    cardBinari[i]=j;
-//                    card -= j * Math.pow(3,i);
-//                }
-//        }
-//        return cardBinari;
-//    }
-//
     }

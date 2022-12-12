@@ -139,10 +139,8 @@ public class Player implements Runnable {
                 table.placeToken(id, slot);
                 tokensOnCards.add(slot);
             }
-            else if (tokensOnCards.contains(slot)){
-                table.removeToken(id, slot);
-                tokensOnCards.remove(slot);
-                table.setPlayersWith3Tokens(this,false);
+           else if (tokensOnCards.contains(slot)){
+               removeToken(slot);
             }
         }
     }
@@ -155,13 +153,12 @@ public class Player implements Runnable {
      */
     public void point() {//israel
         // TODO implement
-        score ++;
         table.setScore(id,score++);
         /*
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, ++score);*/
         try {
-            this.playerThread.wait(1000);
+            //this.playerThread.wait(1000);
         }
         catch (Exception ex){
 
@@ -174,12 +171,9 @@ public class Player implements Runnable {
     public void penalty() {
         // TODO implement
         try {
-            this.playerThread.wait(1000);
+            //this.playerThread.wait(1000);
             env.ui.setFreeze(this.id,1000);
-            for (int i : tokensOnCards){
-                tokensOnCards.remove(i);
-                table.removeToken(this.id,i);
-            }
+            removeAllTokens();
         }
         catch (Exception ex){
 
@@ -187,16 +181,40 @@ public class Player implements Runnable {
     }
 
     /**
-     * Penalize a player and perform other related actions.
+     * remove tokens by cards numbers
      */
     public void removeTokens(int[] arr) {
         for (int i = 0 ; i < arr.length ; i++)
         {
-            if (tokensOnCards.contains(table.getCardToSlot(arr[i]))){
-                tokensOnCards.remove(table.getCardToSlot(arr[i]));
-                table.removeTokenByCard(this.id,table.getCardToSlot(arr[i]));
-            }
+            Integer slot = table.cardToSlot[arr[i]];
+            removeToken(slot);
+//            if (tokensOnCards.contains(slot)){
+//                if( tokensOnCards.remove(slot) )
+//                table.removeToken(this.id,slot);
+//                table.setPlayersWith3Tokens(this,false);
+//            }
         }
+    }
+
+    public void removeToken(int slot){
+        Integer s = slot;
+        if(tokensOnCards.contains(slot))
+            if(tokensOnCards.remove(s)){
+
+            }
+        table.removeToken(this.id,slot);
+        table.setPlayersWith3Tokens(this,false);
+    }
+
+    public void removeAllTokens() {
+        for(int i =tokensOnCards.size()-1 ;i>=0 ;i--)
+            removeToken(tokensOnCards.get(i));
+
+//        for (int i=0; i<tokensOnCards.size();i++) {
+//            table.removeToken(this.id,tokensOnCards.get(i));
+//            tokensOnCards.remove(i);
+//        }
+//        table.setPlayersWith3Tokens(this,false);
     }
 
     public int getScore() {

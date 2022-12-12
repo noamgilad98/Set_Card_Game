@@ -192,13 +192,15 @@ public class Table {
         if(add)
         playersWith3Tokens.add(p);
         else
-            playersWith3Tokens.remove(p);
+            if(playersWith3Tokens.contains(p))
+                playersWith3Tokens.remove(p);
 
     }
     public List<Integer> getSlotsAsList(){
         List<Integer> cards = new ArrayList<Integer>();
         for (int i=0; i<this.slotToCard.length; i++)
-            cards.add(slotToCard[i]);
+            if(slotToCard[i]!=null)
+                cards.add(slotToCard[i]);
         return cards;
     }
 
