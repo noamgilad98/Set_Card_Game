@@ -113,7 +113,7 @@ public class Dealer implements Runnable {
         // TODO implement
         List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
         if(playersWith3Tokens.size() > 0) {
-
+//
             for (Player p : playersWith3Tokens) {
                 List<Integer> list = p.getPlayerCards();
                 int[] arr = new int[list.size()];
