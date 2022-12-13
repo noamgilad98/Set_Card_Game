@@ -60,6 +60,11 @@ public class Player implements Runnable {
      */
     private List<Integer> tokensOnCards; //israel
 
+
+
+    public  boolean stop =false;
+
+
     /**
      * The class constructor.
      *
@@ -90,6 +95,7 @@ public class Player implements Runnable {
         while (!terminate) {
             // TODO implement main player loop
 
+
         }
         if (!human) try { aiThread.join(); } catch (InterruptedException ignored) {}
         System.out.printf("Info: Thread %s terminated.%n", Thread.currentThread().getName());
@@ -119,7 +125,7 @@ public class Player implements Runnable {
      */
     public void terminate() {//israel
         // TODO implement
-        this.playerThread.interrupt();
+       // this.playerThread.interrupt();
     }
 
     /**
@@ -127,22 +133,20 @@ public class Player implements Runnable {
      *
      * @param slot - the slot corresponding to the key pressed.
      */
-    public void keyPressed(int slot) {//israel
+    public  void keyPressed(int slot) {//israel
         // TODO implement
-        if(table.slotToCard[slot] != null){
-            if(tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)){
-                table.placeToken(id, slot);
-                tokensOnCards.add(slot);
-                table.setPlayersWith3Tokens(this,true);
-            }
-            else if (!tokensOnCards.contains(slot) && tokensOnCards.size()<2){
-                table.placeToken(id, slot);
-                tokensOnCards.add(slot);
-            }
-            else if (tokensOnCards.contains(slot)){
-                table.removeToken(id, slot);
-                tokensOnCards.remove(slot);
-                table.setPlayersWith3Tokens(this,false);
+        if(!stop) {
+            if (table.slotToCard[slot] != null) {
+                if (tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)) {
+                    table.placeToken(id, slot);
+                    tokensOnCards.add(slot);
+                    table.setPlayersWith3Tokens(this, true);
+                } else if (!tokensOnCards.contains(slot) && tokensOnCards.size() < 2) {
+                    table.placeToken(id, slot);
+                    tokensOnCards.add(slot);
+                } else if (tokensOnCards.contains(slot)) {
+                    removeToken(slot);
+                }
             }
         }
     }
@@ -155,13 +159,12 @@ public class Player implements Runnable {
      */
     public void point() {//israel
         // TODO implement
-        score ++;
         table.setScore(id,score++);
         /*
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, ++score);*/
         try {
-            this.playerThread.wait(1000);
+            //this.playerThread.wait(1000);
         }
         catch (Exception ex){
 
@@ -174,12 +177,50 @@ public class Player implements Runnable {
     public void penalty() {
         // TODO implement
         try {
-            this.playerThread.wait(1000);
-            env.ui.setFreeze(this.id,1000);
-            for (int i : tokensOnCards){
-                tokensOnCards.remove(i);
-                table.removeToken(this.id,i);
-            }
+//            stop = true;
+//            env.ui.setFreeze(this.id,env.config.penaltyFreezeMillis);
+//            long freezeTime = System.currentTimeMillis()+env.config.penaltyFreezeMillis;
+//            while (System.currentTimeMillis()<freezeTime)
+//                env.ui.setFreeze(this.id,System.currentTimeMillis()-freezeTime);
+//            env.ui.setFreeze(this.id,0);
+//            stop = false;
+
+            long penaltyFreezeMillis = 5000;
+            stop = true;
+            env.ui.setFreeze(this.id,penaltyFreezeMillis);
+            long freezeTime = System.currentTimeMillis()+penaltyFreezeMillis;
+       //     this.wait(penaltyFreezeMillis);
+            while (System.currentTimeMillis()<freezeTime)
+                env.ui.setFreeze(this.id,freezeTime- System.currentTimeMillis());
+            env.ui.setFreeze(this.id,0);
+
+
+
+
+            stop = false;
+
+
+
+
+
+//
+//            env.ui.setFreeze(this.id,5000);
+//            long freezeTime = System.currentTimeMillis()+5000;
+//            for (int i=0;i<penaltyFreezeMillis/1000;i++) {
+//                //Thread.sleep(999);
+//
+//                playerThread.start();
+//                env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
+//            }
+//            env.ui.setFreeze(this.id,0);
+//            stop = false;
+
+
+
+
+
+
+            removeAllTokens();
         }
         catch (Exception ex){
 
@@ -187,16 +228,40 @@ public class Player implements Runnable {
     }
 
     /**
-     * Penalize a player and perform other related actions.
+     * remove tokens by cards numbers
      */
     public void removeTokens(int[] arr) {
         for (int i = 0 ; i < arr.length ; i++)
         {
-            if (tokensOnCards.contains(table.getCardToSlot(arr[i]))){
-                tokensOnCards.remove(table.getCardToSlot(arr[i]));
-                table.removeTokenByCard(this.id,table.getCardToSlot(arr[i]));
-            }
+            Integer slot = table.cardToSlot[arr[i]];
+            removeToken(slot);
+//            if (tokensOnCards.contains(slot)){
+//                if( tokensOnCards.remove(slot) )
+//                table.removeToken(this.id,slot);
+//                table.setPlayersWith3Tokens(this,false);
+//            }
         }
+    }
+
+    public void removeToken(int slot){
+        Integer s = slot;
+        if(tokensOnCards.contains(slot))
+            if(tokensOnCards.remove(s)){
+
+            }
+        table.removeToken(this.id,slot);
+        table.setPlayersWith3Tokens(this,false);
+    }
+
+    public void removeAllTokens() {
+        for(int i =tokensOnCards.size()-1 ;i>=0 ;i--)
+            removeToken(tokensOnCards.get(i));
+
+//        for (int i=0; i<tokensOnCards.size();i++) {
+//            table.removeToken(this.id,tokensOnCards.get(i));
+//            tokensOnCards.remove(i);
+//        }
+//        table.setPlayersWith3Tokens(this,false);
     }
 
     public int getScore() {
