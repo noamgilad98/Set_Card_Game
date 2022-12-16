@@ -61,6 +61,8 @@ public class Player implements Runnable {
 
 
     public boolean isPenalty;
+    public boolean isPoint;
+
 
     /**
      * The current amount of tokens of the player.
@@ -88,6 +90,7 @@ public class Player implements Runnable {
         this.human = human;
         this.tokensOnCards = new ArrayList<Integer>();
         this.isPenalty = false;
+        this.isPoint = false;
         stopKeyPress = false;
         keyPresQueue = new PriorityQueue<>();
         this.dealer = dealer;
@@ -110,6 +113,7 @@ public class Player implements Runnable {
             try {
                 penalty();
                 executeQueue();
+                point();
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -200,27 +204,32 @@ public class Player implements Runnable {
      * @post - the player's score is updated in the ui.
      */
     public void point() {//israel
+
         // TODO implement
+        if(isPoint) {
         table.setScore(id,score++);
         /*
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, ++score);*/
         try {
-            stopKeyPress = true;
-            long penaltyFreezeMillis = 10000;
-            env.ui.setFreeze(this.id, penaltyFreezeMillis);
-            long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
-            removeAllTokens();
-            while (System.currentTimeMillis() < freezeTime)
-                env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
-            env.ui.setFreeze(this.id, 0);
-            stopKeyPress = false;
+
+                System.out.println(Thread.currentThread());
+                stopKeyPress = true;
+                long penaltyFreezeMillis = 10000;
+                env.ui.setFreeze(this.id, penaltyFreezeMillis);
+                long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
+                removeAllTokens();
+                while (System.currentTimeMillis() < freezeTime)
+                    env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
+                env.ui.setFreeze(this.id, 0);
+                stopKeyPress = false;
+                isPoint = false;
 
 
         }
         catch (Exception ex){
 
-        }
+        }}
     }
 
     /**

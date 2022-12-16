@@ -64,11 +64,13 @@ private boolean isNewSet;
      */
     @Override
     public void run() {
+        int c = 0;
         for (Player p : players) {
-           // char c = '0';
-            Thread playerThread = new Thread(p,"player");
+
+
+            Thread playerThread = new Thread(p,"player"+""+c);
             playerThread.start();
-            //c++;
+            c++;
         }
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
@@ -121,7 +123,7 @@ private boolean isNewSet;
     /**
      * Checks if any cards should be removed from the table.
      */
-    private void removeCardsFromTable() {//remove the set
+    private void  removeCardsFromTable() {//remove the set
         // TODO implement
         if (waitingQueueNumbers.size() > 0) {
             Player p = players[waitingQueueNumbers.poll()];
@@ -138,10 +140,13 @@ private boolean isNewSet;
                 reshuffleTime = System.currentTimeMillis() + 60000;//noam
 
                 //p.notify();
-                p.point();
+
+            //   p.point();
+                p.isPoint = true;
             }
             else
-                p.setPenalty();
+
+            p.isPenalty = true;
 
 
         }
