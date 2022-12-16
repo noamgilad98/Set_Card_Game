@@ -41,10 +41,13 @@ public class Dealer implements Runnable {
      */
     private long reshuffleTime = Long.MAX_VALUE;
 
+    private boolean noMoreSets;
+
     private Semaphore semaphore;
 
     private Queue<Player> waitingQueue;
     private Queue<Integer> waitingQueueNumbers;
+    private long roundTime;
 
 private boolean isNewSet;
     public Dealer(Env env, Table table, Player[] players) {
@@ -56,6 +59,8 @@ private boolean isNewSet;
         this.isNewSet = true;
         this.semaphore = new Semaphore(1,true);
         this.waitingQueueNumbers = new PriorityQueue<>();
+        this.noMoreSets = false;
+        this.roundTime = 30000;
 
     }
 
@@ -75,7 +80,7 @@ private boolean isNewSet;
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
-            reshuffleTime = System.currentTimeMillis() + 60000;//noam
+            reshuffleTime = System.currentTimeMillis() + roundTime;//noam
 
             try {
                 timerLoop();
@@ -117,7 +122,7 @@ private boolean isNewSet;
      * @return true iff the game should be finished.
      */
     private boolean shouldFinish() {
-        return terminate || env.util.findSets(deck, 1).size() == 0;
+        return terminate || env.util.findSets(deck, 1).size() == 0 || noMoreSets ;
     }
 
     /**
@@ -125,30 +130,65 @@ private boolean isNewSet;
      */
     private void  removeCardsFromTable() {//remove the set
         // TODO implement
+
         if (waitingQueueNumbers.size() > 0) {
             Player p = players[waitingQueueNumbers.poll()];
-            List slots = p.getPlayerCards();
-            int[] cards = new int[3];
-            for (int i = 0; i < slots.size(); i++)
-                cards[i] = table.slotToCard[(int)slots.get(i)];
+            synchronized (p) {
+                List slots = p.getPlayerCards();
+                int[] cards = new int[3];
+                for (int i = 0; i < slots.size(); i++)
+                    cards[i] = table.slotToCard[(int) slots.get(i)];
 
-            if (env.util.testSet(cards) && cards.length == 3) {//set
-                for (int i : cards)
-                    table.removeCard(table.cardToSlot[i]);
-                isNewSet = true;
-                placeCardsOnTable();
-                reshuffleTime = System.currentTimeMillis() + 60000;//noam
+                if (env.util.testSet(cards) && cards.length == 3 && ((cards[0]!=cards[1]) && (cards[1]!=cards[2])
+                && (cards[2]!=cards[0])) ) {//set
 
-                //p.notify();
+                    System.out.println(p.id+" "+cards[0]+" "+cards[1]+" "+cards[2]+" ");
+                    for (int i : cards) {
+                        table.removeCard(table.cardToSlot[i]);
 
-            //   p.point();
-                p.isPoint = true;
+                    }
+
+                    isNewSet = true;
+                    placeCardsOnTable();
+                    reshuffleTime = System.currentTimeMillis() + roundTime;//noam
+
+                    for (Player p1 : players){
+                        synchronized (p1) {
+                            for (int i=0;i<slots.size();i++) {
+                                if(p1.id!=p.id)
+                                    if (p1.getPlayerCards().contains(slots.get(i)))
+                                        p1.removeToken((int)slots.get(i));
+                            }
+                            p1.notifyAll();
+                        }
+
+                    }
+                    for (int i=0;i<slots.size();i++)
+                        p.removeToken((int)slots.get(i));
+
+
+                    //p.notify();
+
+                    //   p.point();
+                    p.isPoint = true;
+                } else
+                    p.isPenalty = true;
+
+                p.notifyAll();
             }
-            else
+        }
 
-            p.isPenalty = true;
+    }
 
-
+    private void removeTokensIfOnSet(List<Integer> slots){
+        for (Player p1 : players){
+            synchronized (p1) {
+                for (int slot : slots) {
+                    if (p1.getPlayerCards().contains(slot))
+                        p1.removeToken(slot);
+                }
+                p1.notifyAll();
+            }
         }
 
     }
@@ -171,15 +211,17 @@ private boolean isNewSet;
                 removeAllCardsFromTable();
                 placeCardsOnTable();
             }
-            else
-            {
+
+
                 if(isNewSet) {
-                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[0]]);
-                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[1]]);
-                    System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[2]]);
-                    isNewSet = false;
-                }
-            }
+                    if(env.util.findSets(table.getSlotsAsList(), 1).size() > 0) {
+                        System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[0]]);
+                        System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[1]]);
+                        System.out.println(table.cardToSlot[env.util.findSets(table.getSlotsAsList(), 1).get(0)[2]]);
+                        isNewSet = false;
+                    }
+                    }
+
         }
         /**
          * Sleep for a fixed amount of time or until the thread is awakened for some purpose.
@@ -203,15 +245,15 @@ private boolean isNewSet;
         private void removeAllCardsFromTable() {//return to deck if time over
             // TODO implement
             for (int i = 0; i < table.slotToCard.length; i++) {
-                deck.add(table.slotToCard[i]);
-                table.removeCard(i);
+                if(table.slotToCard[i]!=null) {
+                    //deck.add(table.slotToCard[i]);
+                    table.removeCard(i);
+                }
             }
-            if(env.util.findSets(deck,1).size()>0)
-                this.terminate();
+            if(env.util.findSets(deck,1).size()==0)
+                noMoreSets = true;
             for (Player p :players)
                 p.removeAllTokens();
-            if(env.util.findSets(deck,1).size()==0)
-                announceWinners();
 
         }
 
