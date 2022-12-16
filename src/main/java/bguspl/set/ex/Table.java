@@ -171,31 +171,8 @@ public class Table {
                 emptySlots.add(i);
         return emptySlots;
     }
-    /**
-     *
-     * @return       true if there is already a token in this slot .
 
-    public boolean isTokenExsist(int slot) {/////////////////////////////////////////////////////
 
-        return true;
-    }*/
-
-    /**
-     *
-     * @return       - list of players with 3 tokens on the table.
-     */
-    public List<Player> getPlayersWith3Tokens () {//israel
-        return playersWith3Tokens;
-    }
-
-    public void setPlayersWith3Tokens (Player p, boolean add){
-        if(add)
-        playersWith3Tokens.add(p);
-        else
-            if(playersWith3Tokens.contains(p))
-                playersWith3Tokens.remove(p);
-
-    }
     public List<Integer> getSlotsAsList(){
         List<Integer> cards = new ArrayList<Integer>();
         for (int i=0; i<this.slotToCard.length; i++)
@@ -204,9 +181,8 @@ public class Table {
         return cards;
     }
 
-    public int getCardToSlot(int card){
-        return cardToSlot[card];
-    }
+
+
 
     public void setScore(int player,int score){
         env.ui.setScore(player, ++score);

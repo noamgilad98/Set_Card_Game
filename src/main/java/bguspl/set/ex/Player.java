@@ -4,8 +4,12 @@ package bguspl.set.ex;
 
 import bguspl.set.Env;
 
+import javax.swing.plaf.TableHeaderUI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.concurrent.Semaphore;
 
 /**
  * This class manages the players' threads and data
@@ -55,15 +59,20 @@ public class Player implements Runnable {
      */
     private int score;
 
+
+    public boolean isPenalty;
+    public boolean isPoint;
+
+
     /**
      * The current amount of tokens of the player.
      */
     private List<Integer> tokensOnCards; //israel
 
 
-
-    public  boolean stop =false;
-
+    private Queue<Integer> keyPresQueue;
+    private   boolean stopKeyPress;
+    private Dealer dealer;
 
     /**
      * The class constructor.
@@ -80,6 +89,11 @@ public class Player implements Runnable {
         this.id = id;
         this.human = human;
         this.tokensOnCards = new ArrayList<Integer>();
+        this.isPenalty = false;
+        this.isPoint = false;
+        stopKeyPress = false;
+        keyPresQueue = new PriorityQueue<>();
+        this.dealer = dealer;
 
     }
 
@@ -90,10 +104,21 @@ public class Player implements Runnable {
     public void run() {
         playerThread = Thread.currentThread();
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
+
         if (!human) createArtificialIntelligence();
 
         while (!terminate) {
             // TODO implement main player loop
+
+            try {
+                penalty();
+                executeQueue();
+                point();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
 
 
         }
@@ -135,19 +160,40 @@ public class Player implements Runnable {
      */
     public  void keyPressed(int slot) {//israel
         // TODO implement
-        if(!stop) {
-            if (table.slotToCard[slot] != null) {
-                if (tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)) {
-                    table.placeToken(id, slot);
-                    tokensOnCards.add(slot);
-                    table.setPlayersWith3Tokens(this, true);
-                } else if (!tokensOnCards.contains(slot) && tokensOnCards.size() < 2) {
-                    table.placeToken(id, slot);
-                    tokensOnCards.add(slot);
-                } else if (tokensOnCards.contains(slot)) {
-                    removeToken(slot);
+        if(!stopKeyPress)
+            keyPresQueue.add(slot);
+    }
+
+    public synchronized   void executeQueue() throws InterruptedException {//israel
+        // TODO implement
+        if(keyPresQueue.peek() != null) {
+            int slot = keyPresQueue.poll();
+                if (table.slotToCard[slot] != null) {
+                    if (tokensOnCards.size() == 2 && !tokensOnCards.contains(slot)) {
+                        env.ui.placeToken(id, slot);
+                        tokensOnCards.add(slot);
+
+                       // Semaphore semaphore = new Semaphore(1);
+                      //  semaphore.acquire();
+
+
+
+                        dealer.addSetToQueue(this);
+                        //wait();
+
+
+
+                        //semaphore.release();
+
+
+
+                    } else if (!tokensOnCards.contains(slot) && tokensOnCards.size() < 2) {
+                        env.ui.placeToken(id, slot);
+                        tokensOnCards.add(slot);
+                    } else if (tokensOnCards.contains(slot)) {
+                        removeToken(slot);
+                    }
                 }
-            }
         }
     }
 
@@ -158,17 +204,32 @@ public class Player implements Runnable {
      * @post - the player's score is updated in the ui.
      */
     public void point() {//israel
+
         // TODO implement
+        if(isPoint) {
         table.setScore(id,score++);
         /*
-        int ignored = table.countCards(); // this part is just for demonstration in the unit tests
+        int ignored = table.countCards(); // this part is just for demonstration in the unit test s
         env.ui.setScore(id, ++score);*/
         try {
-            //this.playerThread.wait(1000);
+
+                System.out.println(Thread.currentThread());
+                stopKeyPress = true;
+                long penaltyFreezeMillis = 10000;
+                env.ui.setFreeze(this.id, penaltyFreezeMillis);
+                long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
+                removeAllTokens();
+                while (System.currentTimeMillis() < freezeTime)
+                    env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
+                env.ui.setFreeze(this.id, 0);
+                stopKeyPress = false;
+                isPoint = false;
+
+
         }
         catch (Exception ex){
 
-        }
+        }}
     }
 
     /**
@@ -177,53 +238,22 @@ public class Player implements Runnable {
     public void penalty() {
         // TODO implement
         try {
-//            stop = true;
-//            env.ui.setFreeze(this.id,env.config.penaltyFreezeMillis);
-//            long freezeTime = System.currentTimeMillis()+env.config.penaltyFreezeMillis;
-//            while (System.currentTimeMillis()<freezeTime)
-//                env.ui.setFreeze(this.id,System.currentTimeMillis()-freezeTime);
-//            env.ui.setFreeze(this.id,0);
-//            stop = false;
+            if (isPenalty) {
+                stopKeyPress = true;
+                long penaltyFreezeMillis = 10000;
+                env.ui.setFreeze(this.id, penaltyFreezeMillis);
+                long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
+                removeAllTokens();
+                //Thread.sleep(5000);
+                while (System.currentTimeMillis() < freezeTime)
+                    env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
+                env.ui.setFreeze(this.id, 0);
+                stopKeyPress = false;
+                isPenalty = false;
+            }
 
-            long penaltyFreezeMillis = 5000;
-            stop = true;
-            env.ui.setFreeze(this.id,penaltyFreezeMillis);
-            long freezeTime = System.currentTimeMillis()+penaltyFreezeMillis;
-       //     this.wait(penaltyFreezeMillis);
-            while (System.currentTimeMillis()<freezeTime)
-                env.ui.setFreeze(this.id,freezeTime- System.currentTimeMillis());
-            env.ui.setFreeze(this.id,0);
-
-
-
-
-            stop = false;
-
-
-
-
-
-//
-//            env.ui.setFreeze(this.id,5000);
-//            long freezeTime = System.currentTimeMillis()+5000;
-//            for (int i=0;i<penaltyFreezeMillis/1000;i++) {
-//                //Thread.sleep(999);
-//
-//                playerThread.start();
-//                env.ui.setFreeze(this.id, freezeTime - System.currentTimeMillis());
-//            }
-//            env.ui.setFreeze(this.id,0);
-//            stop = false;
-
-
-
-
-
-
-            removeAllTokens();
         }
         catch (Exception ex){
-
         }
     }
 
@@ -250,7 +280,7 @@ public class Player implements Runnable {
 
             }
         table.removeToken(this.id,slot);
-        table.setPlayersWith3Tokens(this,false);
+
     }
 
     public void removeAllTokens() {
@@ -271,4 +301,11 @@ public class Player implements Runnable {
     public List<Integer> getPlayerCards (){
         return tokensOnCards;
     }
+    public void setPenalty(){
+        this.isPenalty = true;
+    }
+    public void setStopKeyPress(){
+        this.stopKeyPress = true;
+    }
+
 }

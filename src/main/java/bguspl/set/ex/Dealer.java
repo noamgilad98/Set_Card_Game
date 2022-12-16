@@ -5,11 +5,10 @@ import bguspl.set.UserInterfaceImpl;
 import bguspl.set.UtilImpl;
 //import jdk.jshell.execution.Util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.Collections; //import by noam to shuffle
 
 /**
  * This class manages the dealer's threads and data
@@ -42,6 +41,10 @@ public class Dealer implements Runnable {
      */
     private long reshuffleTime = Long.MAX_VALUE;
 
+    private Semaphore semaphore;
+
+    private Queue<Player> waitingQueue;
+    private Queue<Integer> waitingQueueNumbers;
 
 private boolean isNewSet;
     public Dealer(Env env, Table table, Player[] players) {
@@ -49,8 +52,10 @@ private boolean isNewSet;
         this.table = table;
         this.players = players;
         deck = IntStream.range(0, env.config.deckSize).boxed().collect(Collectors.toList());
-
+        this.waitingQueue = new PriorityQueue<>();
         this.isNewSet = true;
+        this.semaphore = new Semaphore(1,true);
+        this.waitingQueueNumbers = new PriorityQueue<>();
 
     }
 
@@ -59,18 +64,28 @@ private boolean isNewSet;
      */
     @Override
     public void run() {
-//        for (Player p : players) {
-//            p.run();
-//        }
+        int c = 0;
+        for (Player p : players) {
+
+
+            Thread playerThread = new Thread(p,"player"+""+c);
+            playerThread.start();
+            c++;
+        }
         System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
         while (!shouldFinish()) {
             placeCardsOnTable();
             reshuffleTime = System.currentTimeMillis() + 60000;//noam
-            timerLoop();
+
+            try {
+                timerLoop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             updateTimerDisplay(false);
             isNewSet = true;
-            removeAllPlayersTokens();
             removeAllCardsFromTable();//return to deck if time over
+
         }
         announceWinners();
         System.out.printf("Info: Thread %s terminated.%n", Thread.currentThread().getName());
@@ -79,7 +94,7 @@ private boolean isNewSet;
     /**
      * The inner loop of the dealer thread that runs as long as the countdown did not time out.
      */
-    private void timerLoop() {
+    private void timerLoop() throws InterruptedException {
         while (!terminate && System.currentTimeMillis() < reshuffleTime) {
             sleepUntilWokenOrTimeout();
             updateTimerDisplay(false);
@@ -93,7 +108,6 @@ private boolean isNewSet;
      */
     public void terminate() {
         // TODO implement
-
         Thread.currentThread().interrupt();
     }
 
@@ -109,48 +123,36 @@ private boolean isNewSet;
     /**
      * Checks if any cards should be removed from the table.
      */
-    private void removeCardsFromTable() {//remove the set
+    private void  removeCardsFromTable() {//remove the set
         // TODO implement
-        boolean ans = removeCardsFromTableBool();
+        if (waitingQueueNumbers.size() > 0) {
+            Player p = players[waitingQueueNumbers.poll()];
+            List slots = p.getPlayerCards();
+            int[] cards = new int[3];
+            for (int i = 0; i < slots.size(); i++)
+                cards[i] = table.slotToCard[(int)slots.get(i)];
 
-    }
-    /**
-     * Checks if any cards should be removed from the table.
-     */
+            if (env.util.testSet(cards) && cards.length == 3) {//set
+                for (int i : cards)
+                    table.removeCard(table.cardToSlot[i]);
+                isNewSet = true;
+                placeCardsOnTable();
+                reshuffleTime = System.currentTimeMillis() + 60000;//noam
 
-    private boolean removeCardsFromTableBool() {//remove the set
-        // TODO implement
-        List<Player> playersWith3Tokens  = table.getPlayersWith3Tokens();
-        if(playersWith3Tokens.size() > 0) {
-//
-            for (int j=0;j<playersWith3Tokens.size();j++) {
-                Player p = playersWith3Tokens.get(j);
-                List<Integer> list = p.getPlayerCards();
-                int[] arr = new int[list.size()];
-                for (int i = 0; i < list.size(); i++)
-                    arr[i] = table.slotToCard[list.get(i)];
+                //p.notify();
 
-                if (env.util.testSet(arr) && arr.length==3){//set
-                    p.point();
-                    for (Player p1 : players)
-                        p1.removeTokens(arr);
-                    for(int i : arr)
-                        table.removeCard(table.cardToSlot[i]);
-                    isNewSet = true;
-                    placeCardsOnTable();
-                    reshuffleTime = System.currentTimeMillis() + 60000;//noam
-                    return true;
-                }
-                else
-                {
-
-                    p.penalty();
-                }
-
+            //   p.point();
+                p.isPoint = true;
             }
+            else
+
+            p.isPenalty = true;
+
+
         }
-        return false;
+
     }
+
 
 
         /**
@@ -164,7 +166,6 @@ private boolean isNewSet;
                 if(deck.size()>0)
                     table.placeCard(deck.remove(0), i);
 
-            //int [] arr1 = env.util.findSets(table.getSlotsAsList(),);
             if(deck.size()>0)
             if(env.util.findSets(table.getSlotsAsList(),1).size() == 0 ){
                 removeAllCardsFromTable();
@@ -179,23 +180,13 @@ private boolean isNewSet;
                     isNewSet = false;
                 }
             }
-
-
-
-//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(0));
-//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(1));
-//                System.out.println(env.util.findSets(table.getSlotsAsList(),1).get(2));
-
-
         }
-
         /**
          * Sleep for a fixed amount of time or until the thread is awakened for some purpose.
          */
-        private void sleepUntilWokenOrTimeout() {
+        private void sleepUntilWokenOrTimeout() throws InterruptedException {
+            Thread.sleep(9);
             // TODO implement
-
-
         }
 
         /**
@@ -204,9 +195,7 @@ private boolean isNewSet;
         private void updateTimerDisplay(boolean reset) {
             // TODO implement
             env.ui.setElapsed(reshuffleTime - System.currentTimeMillis());
-
-
-        }//
+        }
 
         /**
          * Returns all the cards from the table to the deck.
@@ -251,13 +240,10 @@ private boolean isNewSet;
             env.ui.announceWinner(winnersARR);
         }
 
-        public void penalty(int playerID){
-
+        public void addSetToQueue(Player p)  {
+            waitingQueueNumbers.add(p.id);
         }
 
-
-        private void removeAllPlayersTokens() {
-        }
 
 
 
