@@ -209,7 +209,7 @@ public class Player implements Runnable {
         if(isPoint) {
         table.setScore(id,score++);
         /*
-        int ignored = table.countCards(); // this part is just for demonstration in the unit tests
+        int ignored = table.countCards(); // this part is just for demonstration in the unit test s
         env.ui.setScore(id, ++score);*/
         try {
 
