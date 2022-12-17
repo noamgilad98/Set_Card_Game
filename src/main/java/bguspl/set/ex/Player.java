@@ -5,10 +5,7 @@ package bguspl.set.ex;
 import bguspl.set.Env;
 
 import javax.swing.plaf.TableHeaderUI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -136,6 +133,18 @@ public class Player implements Runnable {
             System.out.printf("Info: Thread %s starting.%n", Thread.currentThread().getName());
             while (!terminate) {
                 // TODO implement player key press simulator
+                Random r = new Random();
+                int slot = r.nextInt(3);
+                this.keyPressed(slot);
+                slot = r.nextInt(3);
+                this.keyPressed(slot);
+                slot = r.nextInt(3);
+                this.keyPressed(slot);
+                slot = r.nextInt(3);
+                this.keyPressed(slot);
+
+
+
                 try {
                     synchronized (this) { wait(); }
                 } catch (InterruptedException ignored) {}
@@ -177,10 +186,11 @@ public class Player implements Runnable {
                       //  semaphore.acquire();
 
 
+                        synchronized (this) {
 
-                        dealer.addSetToQueue(this);
-                        //wait();
-
+                            dealer.addSetToQueue(this);
+                            wait();
+                        }
 
 
                         //semaphore.release();
@@ -215,7 +225,7 @@ public class Player implements Runnable {
 
                 System.out.println(Thread.currentThread());
                 stopKeyPress = true;
-                long penaltyFreezeMillis = 10000;
+                long penaltyFreezeMillis = 4000;
                 env.ui.setFreeze(this.id, penaltyFreezeMillis);
                 long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
                 removeAllTokens();
@@ -240,7 +250,7 @@ public class Player implements Runnable {
         try {
             if (isPenalty) {
                 stopKeyPress = true;
-                long penaltyFreezeMillis = 10000;
+                long penaltyFreezeMillis = 2000;
                 env.ui.setFreeze(this.id, penaltyFreezeMillis);
                 long freezeTime = System.currentTimeMillis() + penaltyFreezeMillis;
                 removeAllTokens();
